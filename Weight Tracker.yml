@@ -1,0 +1,37 @@
+trigger:
+  branches:
+    include:
+    - master
+stages:
+- stage: __default
+  jobs:
+  - job: Job
+    pool:
+      name: default
+      vmImage: "gil"
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '14.x'
+      displayName: 'Install Node.js'
+    - task: CmdLine@2
+      displayName: 'npm install'
+      inputs:
+        script: |
+          npm install
+    - task: CmdLine@2
+      displayName: 'Install azure-pipelines-task-lib'
+      inputs:
+        script: |
+          npm install azure-pipelines-task-lib --save
+    - task: DownloadSecureFile@1
+      displayName: "Download env-stage"
+      inputs:
+        secureFile: 'env-stage'
+    - task: CopyFiles@1
+      displayName: "Import env-stage"
+      inputs:
+        contents: "$(Agent.TempDirectory)/env-stage"
+        targetFolder: "$(Agent.BuildDirectory)"
+        OverWrite: true
+
